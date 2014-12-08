@@ -1,0 +1,19 @@
+<h3>
+  Contacts
+</h3>
+
+{{#if pane.loading}}
+  Loading...
+{{/if}}
+
+<ul>
+  {{#each contact in pane.model}}
+    <li>
+      {{contact.name}}
+    </li>
+  {{else}}
+    <li>
+      No Contacts Found
+    </li>
+  {{/each}}
+</ul>

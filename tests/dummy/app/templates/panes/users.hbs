@@ -1,0 +1,18 @@
+<h3>
+  Users
+</h3>
+
+<ul>
+  {{#each user in pane.model}}
+    <li>
+      {{user.name}}
+      <button {{action 'remove' user target=pane}}>
+        remove
+      </button>
+    </li>
+  {{else}}
+    <li>
+      No Users Found
+    </li>
+  {{/each}}
+</ul>

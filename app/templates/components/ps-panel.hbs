@@ -1,0 +1,8 @@
+{{#each paneCtrl in panes}}
+  {{ps-pane
+    pane=paneCtrl
+    showAnimation=showAnimation
+    hideAnimation=hideAnimation}}
+{{/each}}
+
+{{yield}}
