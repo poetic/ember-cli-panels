@@ -11,11 +11,23 @@ export default Ember.Component.extend({
     return this.get('panel').registerPane(this);
   }),
 
-  hideAnimation: function() {
+  unregisterPane: Ember.on('willDestroyElement', function() {
+    return this.get('panel').unregisterPane(this);
+  }),
+
+  _hideAnimation: function() {
+    if (this.get('hideAnimation')) {
+      return this.get('hideAnimation')();
+    }
+
     return this.$().hide();
   },
 
-  showAnimation: function() {
+  _showAnimation: function() {
+    if (this.get('showAnimation')) {
+      return this.get('showAnimation')();
+    }
+
     return this.$().show();
   }
 });

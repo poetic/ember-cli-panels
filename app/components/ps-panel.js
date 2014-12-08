@@ -12,6 +12,10 @@ export default Ember.Component.extend({
     this.get('renderedPanes').pushObject(paneComponent);
   },
 
+  unregisterPane: function(paneComponent) {
+    this.get('renderedPanes').removeObject(paneComponent);
+  },
+
   updateVisiblePane: Ember.observer('currentPane', 'renderedPanes.[]', 'panes.[]', function() {
     // Guard to make sure all panes are rendered before running any animations.
     if (this.get('renderedPanes.length') !== this.get('panes.length')) {
@@ -26,9 +30,9 @@ export default Ember.Component.extend({
     var animations = this.get('renderedPanes').map(function(pane) {
       if (pane.get('name') === currentPane) {
         hasShownPane = true;
-        return Ember.RSVP.resolve(pane.showAnimation());
+        return Ember.RSVP.resolve(pane._showAnimation());
       } else {
-        return Ember.RSVP.resolve(pane.hideAnimation());
+        return Ember.RSVP.resolve(pane._hideAnimation());
       }
     });
 
