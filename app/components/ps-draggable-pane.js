@@ -27,7 +27,7 @@ export default PsPane.extend({
     var $container = this.$().parents('.ps-panel-container');
 
     var hammer = new Hammer($el[0]);
-    hammer.get('pan').set({ threshold: 50 });
+    hammer.get('pan').set({ threshold: 50, direction: Hammer.DIRECTION_HORIZONTAL });
 
     var elWidth, elHeight, elPosition, visiblePaneOpts, panes, currentPaneIndex,
         prevPane, currentPane, nextPane, offset, reverseCss = [];
@@ -93,7 +93,7 @@ export default PsPane.extend({
       }
     });
 
-    hammer.on('panleft panright', function(event){
+    hammer.on('panmove', function(event){
       $container.velocity({
         translateX: event.deltaX
       }, { duration: 0 });
