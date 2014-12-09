@@ -2,7 +2,7 @@ import Ember from 'ember';
 import PsPane from './ps-pane';
 
 function animate($el, opts) {
-  return Ember.$.Velocity($el, opts, 250, [150, 20]);
+  return Ember.$.Velocity($el, opts, 200, [300, 30]);
 }
 
 function setCss($el, cssOpts) {
@@ -27,12 +27,16 @@ export default PsPane.extend({
     var $container = this.$().parents('.ps-panel-container');
 
     var hammer = new Hammer($el[0]);
-    hammer.get('pan').set({ threshold: 50, direction: Hammer.DIRECTION_HORIZONTAL });
+    hammer.get('pan').set({ threshold: 10, direction: Hammer.DIRECTION_HORIZONTAL });
+    hammer.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+
+    var panning = false;
 
     var elWidth, elHeight, elPosition, visiblePaneOpts, panes, currentPaneIndex,
         prevPane, currentPane, nextPane, offset, reverseCss = [];
 
     hammer.on('panstart', function() {
+      panning = true;
       reverseCss = [];
 
       panes            = component.get('panel.renderedPanes');
@@ -99,41 +103,80 @@ export default PsPane.extend({
       }, { duration: 0 });
     });
 
+    var animateToNextPane = function() {
+      return animate($container, {
+        translateX: -elWidth
+      }).then(function() {
+        component.set('panel.currentPane', nextPane.get('name'));
+      });
+    };
+
+    var animateToPrevPane = function() {
+      return animate($container, {
+        translateX: elWidth
+      }).then(function() {
+        component.set('panel.currentPane', prevPane.get('name'));
+      });
+    };
+
+    var animateToCurrentPane = function() {
+      return animate($container, { translateX: 0 }).then(function() {
+        return component.get('panel').updateVisiblePane();
+      });
+    };
+
+    var finishAnimation = function(animation) {
+      panning = false;
+
+      return Ember.RSVP.resolve(animation).then(function() {
+        reverseCss.forEach(function(fn) { fn() });
+        $container.css({transform: 'translateX(0px)'});
+      });
+    }
+
     hammer.on('panend', function(event) {
+      if (!panning) {
+        return;
+      }
+
       var delta = event.deltaX;
 
       var animation;
 
       if (prevPane && delta > offset) {
-        animation = animate($container, {
-          translateX: elWidth
-        }).then(function() {
-          component.set('panel.currentPane', prevPane.get('name'));
-        });
-
+        animation = animateToPrevPane();
       } else if (delta > 0) {
-        animation = animate($container, { translateX: 0 }).then(function() {
-          return component.get('panel').updateVisiblePane();
-        });
-
+        animation = animateToCurrentPane();
       } else if (nextPane && Math.abs(delta) > offset) {
-        animation = animate($container, {
-          translateX: -elWidth
-        }).then(function() {
-          component.set('panel.currentPane', nextPane.get('name'));
-        });
-
+        animation = animateToNextPane();
       } else {
-        animation = animate($container, { translateX: 0 }).then(function() {
-          return component.get('panel').updateVisiblePane();
-        });
+        animation = animateToCurrentPane();
       }
 
-      Ember.RSVP.resolve(animation).then(function() {
-        reverseCss.forEach(function(fn) { fn() });
-        $container.css({transform: 'translateX(0px)'});
-      });
+      finishAnimation(animation);
+    });
 
+    hammer.on('swipeleft', function() {
+      var animation;
+
+      if (nextPane) {
+        animation = animateToNextPane();
+      } else {
+        animation = animateToCurrentPane();
+      }
+
+      finishAnimation(animation);
+    });
+
+    hammer.on('swiperight', function() {
+      var animation;
+      if (prevPane) {
+        animation = animateToPrevPane();
+      } else {
+        animation = animateToCurrentPane();
+      }
+
+      finishAnimation(animation);
     });
   }),
 
