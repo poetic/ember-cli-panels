@@ -1,8 +1,17 @@
-{{#each paneCtrl in panes}}
-  {{ps-pane
-    pane=paneCtrl
-    showAnimation=showAnimation
-    hideAnimation=hideAnimation}}
-{{/each}}
+<div class="ps-panel-container">
+  {{#each paneCtrl in panes}}
+    {{#if draggable}}
+      {{ps-draggable-pane
+      pane=paneCtrl
+      showAnimation=showAnimation
+      hideAnimation=hideAnimation}}
+    {{else}}
+      {{ps-pane
+      pane=paneCtrl
+      showAnimation=showAnimation
+      hideAnimation=hideAnimation}}
+    {{/if}}
+  {{/each}}
+</div>
 
 {{yield}}
