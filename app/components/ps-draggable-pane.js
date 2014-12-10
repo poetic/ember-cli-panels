@@ -2,7 +2,7 @@ import Ember from 'ember';
 import PsPane from './ps-pane';
 
 function animate($el, opts) {
-  return Ember.$.Velocity($el, opts, 200, [300, 30]);
+  return Ember.$.Velocity($el, opts, 375, [400, 25]);
 }
 
 function setCss($el, cssOpts) {
@@ -21,19 +21,51 @@ function setCss($el, cssOpts) {
 
 export default PsPane.extend({
   setupTouch: Ember.on('didInsertElement', function() {
-    var component = this;
+    var component  = this;
     var $el        = this.$();
     var $panel     = this.$().parents('.ps-panel');
     var $container = this.$().parents('.ps-panel-container');
 
     var hammer = new Hammer($el[0]);
-    hammer.get('pan').set({ threshold: 10, direction: Hammer.DIRECTION_HORIZONTAL });
+
+    hammer.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
     hammer.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
 
     var panning = false;
 
     var elWidth, elHeight, elPosition, visiblePaneOpts, panes, currentPaneIndex,
         prevPane, currentPane, nextPane, offset, reverseCss = [];
+
+    var animateToNextPane = function() {
+      return animate($container, {
+        translateX: -elWidth
+      }).then(function() {
+        component.set('panel.currentPane', nextPane.get('name'));
+      });
+    };
+
+    var animateToPrevPane = function() {
+      return animate($container, {
+        translateX: elWidth
+      }).then(function() {
+        component.set('panel.currentPane', prevPane.get('name'));
+      });
+    };
+
+    var animateToCurrentPane = function() {
+      return animate($container, { translateX: 0 }).then(function() {
+        return component.get('panel').updateVisiblePane();
+      });
+    };
+
+    var finishAnimation = function(animation) {
+      panning = false;
+
+      return Ember.RSVP.resolve(animation).then(function() {
+        reverseCss.forEach(function(fn) { fn() });
+        $container.css({transform: 'translateX(0px)'});
+      });
+    }
 
     hammer.on('panstart', function() {
       panning = true;
@@ -44,15 +76,22 @@ export default PsPane.extend({
 
       // We need to set the height to the max height out of ALL the panes. If
       // it's shorter than one, it will look cut off during the drag
-      var maxHeight = panes.reduce(function(height, pane) {
-        var paneHeight = pane.$().outerHeight();
+      //
+      // We also do this hacky one time cache because it takes ~45ms to
+      // calculate this and causes the drag to lag
+      var maxHeight = component.get('maxHeight');
+      if (!maxHeight) {
+        maxHeight = panes.reduce(function(height, pane) {
+          var paneHeight = pane.$().outerHeight();
 
-        if (paneHeight > height) {
-          return paneHeight;
-        }
+          if (paneHeight > height) {
+            return paneHeight;
+          }
 
-        return height;
-      }, 0);
+          return height;
+        }, 0);
+        component.set('maxHeight', maxHeight);
+      }
 
       reverseCss.push(
         setCss($panel, { height: maxHeight })
@@ -62,7 +101,7 @@ export default PsPane.extend({
       elHeight   = $el.outerHeight();
       elPosition = $el.position();
 
-      offset = elWidth * 0.5;
+      offset = elWidth * 0.30;
 
       visiblePaneOpts = {
         position:  'absolute',
@@ -97,42 +136,15 @@ export default PsPane.extend({
       }
     });
 
-    hammer.on('panmove', function(event){
-      $container.velocity({
+    hammer.on('panmove', function(event) {
+      if (!panning) {
+        return;
+      }
+
+      Ember.$.Velocity($container, {
         translateX: event.deltaX
       }, { duration: 0 });
     });
-
-    var animateToNextPane = function() {
-      return animate($container, {
-        translateX: -elWidth
-      }).then(function() {
-        component.set('panel.currentPane', nextPane.get('name'));
-      });
-    };
-
-    var animateToPrevPane = function() {
-      return animate($container, {
-        translateX: elWidth
-      }).then(function() {
-        component.set('panel.currentPane', prevPane.get('name'));
-      });
-    };
-
-    var animateToCurrentPane = function() {
-      return animate($container, { translateX: 0 }).then(function() {
-        return component.get('panel').updateVisiblePane();
-      });
-    };
-
-    var finishAnimation = function(animation) {
-      panning = false;
-
-      return Ember.RSVP.resolve(animation).then(function() {
-        reverseCss.forEach(function(fn) { fn() });
-        $container.css({transform: 'translateX(0px)'});
-      });
-    }
 
     hammer.on('panend', function(event) {
       if (!panning) {
@@ -156,28 +168,28 @@ export default PsPane.extend({
       finishAnimation(animation);
     });
 
-    hammer.on('swipeleft', function() {
-      var animation;
+    // hammer.on('swipeleft', function() {
+      // var animation;
 
-      if (nextPane) {
-        animation = animateToNextPane();
-      } else {
-        animation = animateToCurrentPane();
-      }
+      // if (nextPane) {
+        // animation = animateToNextPane();
+      // } else {
+        // animation = animateToCurrentPane();
+      // }
 
-      finishAnimation(animation);
-    });
+      // finishAnimation(animation);
+    // });
 
-    hammer.on('swiperight', function() {
-      var animation;
-      if (prevPane) {
-        animation = animateToPrevPane();
-      } else {
-        animation = animateToCurrentPane();
-      }
+    // hammer.on('swiperight', function() {
+      // var animation;
+      // if (prevPane) {
+        // animation = animateToPrevPane();
+      // } else {
+        // animation = animateToCurrentPane();
+      // }
 
-      finishAnimation(animation);
-    });
+      // finishAnimation(animation);
+    // });
   }),
 
   _hideAnimation: function() {
