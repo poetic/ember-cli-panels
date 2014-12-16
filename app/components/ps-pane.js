@@ -18,7 +18,7 @@ export default Ember.Component.extend({
 
   _hideAnimation: function() {
     if (this.get('hideAnimation')) {
-      return this.get('hideAnimation')();
+      return this.get('hideAnimation')(this);
     }
 
     return this.$().hide();
@@ -26,7 +26,7 @@ export default Ember.Component.extend({
 
   _showAnimation: function() {
     if (this.get('showAnimation')) {
-      return this.get('showAnimation')();
+      return this.get('showAnimation')(this);
     }
 
     return this.$().show();
