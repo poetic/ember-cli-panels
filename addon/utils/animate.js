@@ -5,5 +5,5 @@ export default function animate($el, opts, ms) {
     ms = 375;
   }
 
-  return Ember.$.Velocity($el, opts, ms, [400, 25]);
+  return Ember.$.Velocity($el, opts, ms);
 }

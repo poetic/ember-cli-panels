@@ -1,9 +1,8 @@
 import Ember from 'ember';
 import DraggablePanelMixin from 'ember-cli-panels/mixins/draggable-panel';
-import ReverseCssMixin from 'ember-cli-panels/mixins/reverse-css';
 import animate from 'ember-cli-panels/utils/animate';
 
-export default Ember.Component.extend(DraggablePanelMixin, ReverseCssMixin, {
+export default Ember.Component.extend(DraggablePanelMixin, {
   animating: false,
 
   classNames: 'ps-panel',
@@ -13,12 +12,14 @@ export default Ember.Component.extend(DraggablePanelMixin, ReverseCssMixin, {
   currentPaneName:  null, // public
   currentPane: null,
 
-  $container:  null,
-  $panel:      null,
-  elWidth:     0,
+  $container:        null,
+  $panel:            null,
+  elWidth:           0,
+  containerWidth:    0,
+  containerXOffset:  0,
 
   registerPane: function(paneComponent) {
-    this.get('paneComponents').pushObject(paneComponent);
+    this.get('paneComponents').unshiftObject(paneComponent);
   },
 
   unregisterPane: function(paneComponent) {
@@ -32,15 +33,20 @@ export default Ember.Component.extend(DraggablePanelMixin, ReverseCssMixin, {
     }
 
     this.send('startAnimating');
-    var hasShownPane = false;
 
+    var hasShownPane    = false;
     var currentPaneName = this.get('currentPaneName');
+    var component       = this;
 
-    var animations = this.get('paneComponents').map(function(pane) {
+    var animations = this.get('paneComponents').map(function(pane, index) {
       if (pane.get('name') === currentPaneName) {
         hasShownPane = true;
         this.set('currentPane', pane);
-        return Ember.RSVP.resolve(pane._showAnimation());
+
+        return Ember.RSVP.resolve(pane._showAnimation()).then(function() {
+          return component.animateToPaneAtIndex(index);
+        });
+
       } else {
         return Ember.RSVP.resolve(pane._hideAnimation());
       }
@@ -50,39 +56,10 @@ export default Ember.Component.extend(DraggablePanelMixin, ReverseCssMixin, {
       throw new Ember.Error('Could not find pane with name "' + currentPaneName + '" to show.');
     }
 
-    return Ember.RSVP.all(animations).finally(Ember.run.bind(this, function() {
-      this.send('stopAnimating');
-    }));
+    return Ember.RSVP.all(animations).finally(function() {
+      component.send('stopAnimating');
+    });
   }),
-
-  absolutePositionPanes: function() {
-    this.setProperties({ reverseCss: [] });
-
-    var component    = this;
-    var $currentPane = this.get('currentPane').$();
-    var $panel       = this.get('$panel');
-    var elWidth      = $currentPane.outerWidth();
-    var elHeight     = $currentPane.outerHeight();
-    var elPosition   = $currentPane.position();
-
-    var cssOpts = {
-      position:  'absolute',
-      top:       elPosition.top,
-      left:      elPosition.left,
-      width:     elWidth,
-      height:    elHeight
-    };
-
-    this.get('$container').css('-webkit-transition', 'none');
-
-    this.set('elWidth', elWidth);
-
-    cssOpts.left = (elPosition.left - elWidth) + 'px';
-    this.showAndSetCss(this.get('prevPane'), cssOpts);
-
-    cssOpts.left = (elPosition.left + elWidth) + 'px';
-    this.showAndSetCss(this.get('nextPane'), cssOpts);
-  },
 
   paneIndex: Ember.computed('paneComponents.[]', 'currentPane', function() {
     return this.get('paneComponents').indexOf(this.get('currentPane'));
@@ -107,45 +84,66 @@ export default Ember.Component.extend(DraggablePanelMixin, ReverseCssMixin, {
     this.set('$container', $panel.find('.ps-panel-container'));
   }),
 
-  animateToNewPane: function(translateX, pane, ms) {
-    this.send('startAnimating');
+  containerWidthChanged: Ember.observer('containerWidth', '$container',
+                                        'elWidth', 'paneComponents.[]', function() {
+    var $container = this.get('$container');
+    if ($container) {
+      $container.width(this.get('containerWidth'));
+    }
+
+    this.get('paneComponents').forEach(function(component) {
+      if (this.get('elWidth')) {
+        component.updateWidth(this.get('elWidth'))
+      }
+    }, this);
+  }),
+
+  animateToPaneAtIndex: function(index, ms) {
+    if (!ms) {
+      ms = 325;
+    }
 
     var component = this;
 
-    return animate(this.get('$container'), {
-      translateX: translateX
+    component.send('startAnimating');
+
+    var containerXOffset = component.xOffsetForIndex(index);
+    this.set('containerXOffset', containerXOffset);
+
+    var pane = this.get('paneComponents')[index];
+
+    return animate(component.get('$container'), {
+      translateX: containerXOffset
     }, ms).then(function() {
-      component.set('currentPaneName', pane.get('name'));
+      component.setProperties({
+        currentPane: pane,
+        currentPaneName: pane.get('name')
+      });
+      component.send('stopAnimating');
     });
+  },
+
+  animateToPane: function(pane) {
+    var index = this.get('paneComponents').indexOf(pane);
+
+    return this.animateToPaneAtIndex(index, 200);
+  },
+
+  updateContainerWidth: function(singlePaneWidth) {
+    var newWidth = singlePaneWidth * this.get('paneControllers.length');
+    this.set('elWidth', singlePaneWidth);
+    this.set('containerWidth', newWidth);
   },
 
   animateToCurrentPane: function() {
-    this.send('startAnimating');
-
-    var component = this;
-
-    var $currentPane = this.get('currentPane').$();
-
-    return animate(this.get('$container'), {
-      translateX: 0
-    }).then(function() {
-      return component.updateVisiblePane();
-    });
+    return this.animateToPaneAtIndex(this.get('paneIndex'));
   },
 
-  finishAnimation: function(animation) {
-    var component = this;
+  xOffsetForIndex: function(index) {
+    var elWidth = this.get('elWidth');
+    var offset = -(index * elWidth);
 
-    return Ember.RSVP.resolve(animation).then(function() {
-      component.reverseCssChanges()
-
-      component.get('$container').css({
-        transform: 'translateX(0px)'
-      });
-    }).then(function() {
-      component.set('animating', false);
-      component.send('stopAnimating');
-    });
+    return offset;
   },
 
   actions: {

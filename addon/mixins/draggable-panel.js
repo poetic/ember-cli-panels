@@ -10,14 +10,16 @@ export default Ember.Mixin.create({
       return;
     }
 
-    var panel  = this;
-
-    var panRecognizer = new Hammer.Pan({
-      direction: Hammer.DIRECTION_HORIZONTAL
-    });
+    var panel = this;
 
     var hammer = new Hammer(this.$()[0], {
-      preset: [panRecognizer]
+      touchAction: 'pan-y'
+    });
+
+    this.set('hammer', hammer);
+
+    hammer.get('pan').set({
+      direction: Hammer.DIRECTION_HORIZONTAL
     });
 
     hammer.on('panstart', function(event) {
@@ -37,51 +39,64 @@ export default Ember.Mixin.create({
     return this.get('elWidth') * 0.30
   }),
 
-  panstart: function(/* event */) {
-    if (this.get('isPaneScrolling')) {
-      return this.set('panInterrupted', true);
+  disallowPan: Ember.computed.or('isPaneScrolling', 'animating'),
+
+  disallowPanChanged: Ember.observer('disallowPan', 'hammer', function() {
+    var hammer = this.get('hammer');
+    if (!hammer) {
+      return;
     }
 
-    this.absolutePositionPanes();
+    if (this.get('disallowPan')) {
+      hammer.get('pan').set({enable: false});
+    } else {
+      hammer.get('pan').set({enable: true});
+    }
+  }),
+
+  panstart: function(/* event */) {
+    // console.log('<- panstart');
   },
 
   panmove: function(event) {
-    if (this.get('isPaneScrolling')) {
-      return this.set('panInterrupted', true);
-    }
+    var containerXOffset = this.get('containerXOffset');
+    var offset           = containerXOffset + event.deltaX;
 
     Ember.$.Velocity(this.get('$container'), {
-      translateX: event.deltaX
+      translateX: offset
     }, { duration: 0 });
   },
 
   panend: function(event) {
     if (this.get('panInterrupted')) {
-      return this.set('panInterrupted', false);
+      this.set('panInterrupted', false);
+      return this.panInterruptedAnimation();
+    } else {
+      return this.panChooseAnimation(event);
     }
+  },
 
+  panInterruptedAnimation: function() {
+    return this.animateToCurrentPane();
+  },
+
+  panChooseAnimation: function(event) {
     var delta     = event.deltaX;
-    var elWidth   = this.get('elWidth');
     var threshold = this.get('threshold');
     var prevPane  = this.get('prevPane');
     var nextPane  = this.get('nextPane');
 
-    var animation;
-
     if (prevPane && delta > threshold) {
-      animation = this.animateToNewPane(elWidth, prevPane);
+      return this.animateToPane(prevPane);
 
     } else if (delta > 0) {
-      animation = this.animateToCurrentPane();
+      return this.animateToCurrentPane();
 
     } else if (nextPane && Math.abs(delta) > threshold) {
-      animation = this.animateToNewPane(-elWidth, nextPane);
+      return this.animateToPane(nextPane);
 
     } else {
-      animation = this.animateToCurrentPane();
-
+      return this.animateToCurrentPane();
     }
-
-    return this.finishAnimation(animation);
   }
 });
