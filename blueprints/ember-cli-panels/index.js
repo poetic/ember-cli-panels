@@ -1,10 +1,14 @@
 module.exports = {
-  normalizeEntityName: function() { return null; },
+  normalizeEntityName: function() { },
 
   afterInstall: function() {
     var blueprint = this;
-    return this.addPackageToProject('liquid-fire').then(function() {
-      return blueprint.addBowerPackageToProject('hammer.js', '^2.0.4');
+
+    return blueprint.addPackageToProject('liquid-fire', '~0.16.0').then(function() {
+      return blueprint.addBowerPackageToProject([
+        { name: 'hammer.js', target: '^2.0.4' },
+        { name: 'jquery-scrollstop', target: '~1.1.0' }
+      ]);
     });
   }
 }

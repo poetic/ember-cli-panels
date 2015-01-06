@@ -1,11 +1,9 @@
 import Ember from 'ember';
 import DraggablePanelMixin from 'ember-cli-panels/mixins/draggable-panel';
-import SwipeablePanelMixin from 'ember-cli-panels/mixins/swipeable-panel';
 import ReverseCssMixin from 'ember-cli-panels/mixins/reverse-css';
 import animate from 'ember-cli-panels/utils/animate';
 
-export default Ember.Component.extend(DraggablePanelMixin, SwipeablePanelMixin,
-                                      ReverseCssMixin, {
+export default Ember.Component.extend(DraggablePanelMixin, ReverseCssMixin, {
   animating: false,
 
   classNames: 'ps-panel',
@@ -96,6 +94,11 @@ export default Ember.Component.extend(DraggablePanelMixin, SwipeablePanelMixin,
 
   nextPane: Ember.computed('paneComponents.[]', 'paneIndex', function() {
     return this.get('paneComponents')[this.get('paneIndex') + 1]
+  }),
+
+  scrollingPanes: Ember.computed.filterBy('paneComponents', 'scrolling', true),
+  isPaneScrolling: Ember.computed('scrollingPanes.[]', function() {
+    return this.get('scrollingPanes.length') > 0;
   }),
 
   setupJqCache: Ember.on('didInsertElement', function() {
