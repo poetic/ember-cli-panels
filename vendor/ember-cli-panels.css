@@ -1,0 +1,35 @@
+.ps-panel {
+  position: relative;
+}
+
+.ps-pane {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  height: 700px;
+  margin: 0;
+  padding: 0;
+  float: left;
+  display: block;
+  width: 100%;
+
+  /* http://cantina.co/thought_leadership/ios-5-native-scrolling-grins-and-gothcas/ */
+}
+.ps-pane > * {
+  -webkit-transform: translate3d(0,0,0);
+}
+
+.ps-pane-menu {
+  height: 3rem;
+  overflow: hidden;
+  text-align: justify;
+  white-space: nowrap;
+}
+
+.ps-pane-link {
+  line-height: 1rem;
+  text-decoration: none;
+  font-size: 1.0rem;
+  padding: 1rem 2rem;
+  display: inline-block;
+}
