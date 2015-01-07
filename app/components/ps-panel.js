@@ -7,8 +7,8 @@ export default Ember.Component.extend(DraggablePanelMixin, {
 
   classNames: 'ps-panel',
 
-  paneControllers:  Ember.A([]), // public
-  paneComponents:   Ember.A([]),
+  paneControllers:  Ember.A([]), // public [1,2,3]
+  paneComponents:   Ember.A([]), // [3,2,1]
   currentPaneName:  null, // public
   currentPane: null,
 
