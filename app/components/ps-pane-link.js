@@ -31,7 +31,7 @@ export default Ember.Component.extend(ChildComponent, {
   click: function(e) {
     e.preventDefault();
 
-    this.get('menu').send('switchPane', this.get('to'));
+    this.get('menu').switchPane(this.get('prefixedTo'));
   },
 
   scrollIntoCenter: function(menu) {
