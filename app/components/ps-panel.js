@@ -1,30 +1,24 @@
 import Ember from 'ember';
+import ComponentRegistry from 'ember-cli-panels/mixins/component-registry';
 import DraggablePanelMixin from 'ember-cli-panels/mixins/draggable-panel';
 import animate from 'ember-cli-panels/utils/animate';
 
-export default Ember.Component.extend(DraggablePanelMixin, {
+export default Ember.Component.extend(ComponentRegistry, DraggablePanelMixin, {
   animating: false,
 
   classNames: 'ps-panel',
 
-  paneControllers:  Ember.A([]), // public [1,2,3]
-  paneComponents:   Ember.A([]), // [3,2,1]
-  currentPaneName:  null, // public
-  currentPane: null,
+  childComponentsName:  'paneComponents', // for ComponentRegistry
+  paneControllers:      Ember.A([]), // public [1,2,3]
+  paneComponents:       Ember.A([]),
+  currentPaneName:      null, // public
+  currentPane:          null,
 
   $container:        null,
   $panel:            null,
   elWidth:           0,
   containerWidth:    0,
   containerXOffset:  0,
-
-  registerPane: function(paneComponent) {
-    this.get('paneComponents').unshiftObject(paneComponent);
-  },
-
-  unregisterPane: function(paneComponent) {
-    this.get('paneComponents').removeObject(paneComponent);
-  },
 
   updateVisiblePane: Ember.observer('currentPaneName', 'paneComponents.[]', 'paneControllers.[]', function() {
     // Guard to make sure all paneControllers are rendered before running any animations.

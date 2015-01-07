@@ -1,8 +1,11 @@
 import Ember from 'ember';
 import { animate } from 'liquid-fire';
+import ChildComponent from 'ember-cli-panels/mixins/child-component';
+import findComponentByName from 'ember-cli-panels/utils/find-component-by-name';
 
-export default Ember.Component.extend({
-  menu:         Ember.computed.alias('parentView'),
+export default Ember.Component.extend(ChildComponent, {
+  parentName:   'menu', // for ChildComponent
+  menu:         findComponentByName('ps-pane-menu'),
   currentPane:  Ember.computed.alias('menu.currentPane'),
   panePrefix:   Ember.computed.alias('menu.panePrefix'),
 
@@ -23,14 +26,6 @@ export default Ember.Component.extend({
     }
 
     return this.get('to');
-  }),
-
-  registerWithMenu: Ember.on('didInsertElement', function() {
-    this.get('menu').registerLink(this);
-  }),
-
-  unregisterWithMenu: Ember.on('willDestroyElement', function() {
-    this.get('menu').unregisterLink(this);
   }),
 
   click: function(e) {

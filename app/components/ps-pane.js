@@ -1,21 +1,16 @@
 import Ember from 'ember';
+import ChildComponent from 'ember-cli-panels/mixins/child-component';
+import findComponentByName from 'ember-cli-panels/utils/find-component-by-name';
 
-export default Ember.Component.extend({
+export default Ember.Component.extend(ChildComponent, {
   name: Ember.computed.alias('pane.name'),
   scrolling: false,
 
   classNames: 'ps-pane',
 
-  panel: Ember.computed.alias('parentView'),
-  animating: Ember.computed.alias('panel.animating'),
-
-  registerPane: Ember.on('didInsertElement', function() {
-    return this.get('panel').registerPane(this);
-  }),
-
-  unregisterPane: Ember.on('willDestroyElement', function() {
-    return this.get('panel').unregisterPane(this);
-  }),
+  parentName:  'panel', // for ChildComponent
+  panel:       findComponentByName('ps-panel'),
+  animating:   Ember.computed.alias('panel.animating'),
 
   addScrollHandler: Ember.on('didInsertElement', function() {
     this.$().on('scrollstart', this.scrollstart.bind(this));

@@ -1,19 +1,13 @@
 import Ember from 'ember';
+import ComponentRegistry from 'ember-cli-panels/mixins/component-registry';
 
-export default Ember.Component.extend({
+export default Ember.Component.extend(ComponentRegistry, {
   classNames: 'ps-pane-menu',
 
-  currentPane:     null,
-  panePrefix:      null,
-  linkComponents:  Ember.A([]),
-
-  registerLink: function(component) {
-    this.get('linkComponents').pushObject(component);
-  },
-
-  unregisterLink: function(component) {
-    this.get('linkComponents').removeObject(component);
-  },
+  currentPane:          null,
+  panePrefix:           null,
+  childComponentsName:  'linkComponents', // for ComponentRegistry
+  linkComponents:       Ember.A([]),
 
   actions: {
     switchPane: function(newPane) {
