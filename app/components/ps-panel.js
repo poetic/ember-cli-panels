@@ -19,6 +19,7 @@ export default Ember.Component.extend(ComponentRegistry, DraggablePanelMixin, {
   elWidth:           0,
   containerWidth:    0,
   containerXOffset:  0,
+  isFirstRender:     true,
 
   updateVisiblePane: Ember.observer('currentPaneName', 'paneComponents.[]', 'paneControllers.[]', function() {
     // Guard to make sure all paneControllers are rendered before running any animations.
@@ -40,7 +41,14 @@ export default Ember.Component.extend(ComponentRegistry, DraggablePanelMixin, {
         this.set('currentPane', pane);
 
         return Ember.RSVP.resolve(pane._showAnimation()).then(function() {
-          return component.animateToPaneAtIndex(index);
+          var ms;
+
+          if (component.get('isFirstRender')) {
+            component.set('isFirstRender', false)
+            ms = 0;
+          }
+
+          return component.animateToPaneAtIndex(index, ms);
         });
 
       } else {
@@ -99,7 +107,7 @@ export default Ember.Component.extend(ComponentRegistry, DraggablePanelMixin, {
       return;
     }
 
-    if (!ms) {
+    if (ms !== 0 && !ms) {
       ms = 325;
     }
 

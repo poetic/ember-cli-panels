@@ -20,10 +20,6 @@ export default Ember.Mixin.create({
       direction: Hammer.DIRECTION_HORIZONTAL
     });
 
-    hammer.on('panstart', function(event) {
-      return panel.panstart(event);
-    });
-
     hammer.on('panmove', function(event) {
         return panel.panmove(event);
     });
@@ -51,10 +47,6 @@ export default Ember.Mixin.create({
       hammer.get('pan').set({enable: true});
     }
   }),
-
-  panstart: function(/* event */) {
-    // console.log('<- panstart');
-  },
 
   panmove: function(event) {
     var containerXOffset = this.get('containerXOffset');

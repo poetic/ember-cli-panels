@@ -34,11 +34,12 @@ export default Ember.Component.extend(ChildComponent, {
     this.get('menu').switchPane(this.get('prefixedTo'));
   },
 
-  scrollIntoCenter: function(menu) {
+  scrollIntoCenter: function(menu, duration) {
     return animate(this, 'scroll', {
       container: menu.$(),
       axis: 'x',
-      offset: this.calculateOffset(menu.$(), this.$())
+      offset: this.calculateOffset(menu.$(), this.$()),
+      duration: duration
     });
   },
 

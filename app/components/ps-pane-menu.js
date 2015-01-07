@@ -9,6 +9,7 @@ export default Ember.Component.extend(ComponentRegistry, {
   childComponentsName:  'linkComponents', // for ComponentRegistry
   linkComponents:       Ember.A([]),
   animating:            false,
+  isFirstRender:        true,
 
   switchPane: function(newPane) {
     if (this.get('animating')) {
@@ -40,8 +41,14 @@ export default Ember.Component.extend(ComponentRegistry, {
       return;
     }
 
+    var ms = 200;
+    if (menu.get('isFirstRender')) {
+      menu.set('isFirstRender', false);
+      ms = 0;
+    }
+
     menu.set('animating', true);
-    activeLink.scrollIntoCenter(menu).then(function() {
+    activeLink.scrollIntoCenter(menu, ms).then(function() {
       menu.set('animating', false);
     });
   })
