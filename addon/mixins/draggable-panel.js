@@ -3,8 +3,6 @@ import animate from '../utils/animate';
 
 // Can only be mixed into ps-panel
 export default Ember.Mixin.create({
-  panInterrupted: false,
-
   setupPanHammer: Ember.on('didInsertElement', function() {
     if (!this.get('draggable')) {
       return;
@@ -68,16 +66,7 @@ export default Ember.Mixin.create({
   },
 
   panend: function(event) {
-    if (this.get('panInterrupted')) {
-      this.set('panInterrupted', false);
-      return this.panInterruptedAnimation();
-    } else {
-      return this.panChooseAnimation(event);
-    }
-  },
-
-  panInterruptedAnimation: function() {
-    return this.animateToCurrentPane();
+    return this.panChooseAnimation(event);
   },
 
   panChooseAnimation: function(event) {

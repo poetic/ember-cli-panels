@@ -32,7 +32,9 @@ export default Ember.Component.extend(DraggablePanelMixin, {
       return;
     }
 
-    this.send('startAnimating');
+    if (this.get('animating')) {
+      return;
+    }
 
     var hasShownPane    = false;
     var currentPaneName = this.get('currentPaneName');
@@ -99,6 +101,10 @@ export default Ember.Component.extend(DraggablePanelMixin, {
   }),
 
   animateToPaneAtIndex: function(index, ms) {
+    if (this.get('animating')) {
+      return;
+    }
+
     if (!ms) {
       ms = 325;
     }
