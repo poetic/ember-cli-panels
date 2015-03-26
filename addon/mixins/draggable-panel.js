@@ -1,4 +1,6 @@
-import Ember from 'ember'
+/* global Hammer */
+
+import Ember from 'ember';
 import animate from '../utils/animate';
 
 // Can only be mixed into ps-panel
@@ -30,7 +32,7 @@ export default Ember.Mixin.create({
   }),
 
   threshold: Ember.computed('paneWidth', function() {
-    return this.get('elWidth') * 0.30
+    return this.get('elWidth') * 0.30;
   }),
 
   disallowPan: Ember.computed.or('isPaneScrolling', 'animating'),

@@ -1,4 +1,4 @@
-import Ember from 'ember'
+import Ember from 'ember';
 
 // The parent must mixin ParentRegistrar
 export default Ember.Mixin.create({

@@ -1,4 +1,4 @@
-import Ember from 'ember'
+import Ember from 'ember';
 
 export default Ember.Mixin.create({
   // class can override this to give it a different name
