@@ -6,7 +6,6 @@ export default Ember.Controller.extend({
   queryParams: ['pane'],
   pane: 'panes/users',
 
-  panes: initPanes(['panes/users', 'panes/contacts']),
   paneControllers: initPaneControllers(['panes/users', 'panes/contacts']),
 
   showAnimation: function() {
