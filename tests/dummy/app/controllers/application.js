@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import initPanes from 'ember-cli-panels/utils/init-panes';
+import initPaneControllers from 'ember-cli-panels/utils/init-pane-controllers';
 import { animate } from 'liquid-fire';
 
 export default Ember.Controller.extend({
@@ -7,6 +7,7 @@ export default Ember.Controller.extend({
   pane: 'panes/users',
 
   panes: initPanes(['panes/users', 'panes/contacts']),
+  paneControllers: initPaneControllers(['panes/users', 'panes/contacts']),
 
   showAnimation: function() {
     return animate(this, {translateX: 0, opacity: 1}, {}, 'show ps-pane');
