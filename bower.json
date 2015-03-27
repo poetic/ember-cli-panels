@@ -13,7 +13,7 @@
     "ember-qunit": "0.1.8",
     "ember-qunit-notifications": "0.0.4",
     "qunit": "~1.15.0",
-    "hammer.js": "~2.0.4",
+    "hammerjs": "~2.0.4",
     "jquery-scrollstop": "~1.1.0"
   }
 }
