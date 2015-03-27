@@ -12,9 +12,7 @@ zooming and weird scrolling issues
 
 ## Installation
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+`ember install:addon ember-cli-panels`
 
 ## Running
 
