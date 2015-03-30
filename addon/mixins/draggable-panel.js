@@ -1,7 +1,6 @@
 /* global Hammer */
 
 import Ember from 'ember';
-import animate from '../utils/animate';
 
 // Can only be mixed into ps-panel
 export default Ember.Mixin.create({
