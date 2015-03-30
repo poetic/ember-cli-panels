@@ -10,8 +10,6 @@ module.exports = {
   },
 
   included: function(app) {
-    app.import(path.join(app.bowerDirectory, 'hammer.js', 'hammer.js'));
-    app.import(path.join(app.bowerDirectory, 'jquery-scrollstop', 'jquery.scrollstop.js'));
     app.import(path.join('vendor', 'ember-cli-panels.css'));
   }
 };
