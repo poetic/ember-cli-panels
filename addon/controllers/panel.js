@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { animate } from 'liquid-fire';
 
 export default Ember.Controller.extend({
   queryParams: ['pane'],
