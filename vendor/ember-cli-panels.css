@@ -1,5 +1,7 @@
 .ps-panel {
   position: relative;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .ps-pane {
