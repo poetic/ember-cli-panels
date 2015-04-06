@@ -8,15 +8,14 @@
   overflow-x: hidden;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
-  height: 700px;
+  height: 100%;
   margin: 0;
   padding: 0;
   float: left;
   display: block;
-  width: 100%;
+}
 
   /* http://cantina.co/thought_leadership/ios-5-native-scrolling-grins-and-gothcas/ */
-}
 .ps-pane > * {
   -webkit-transform: translate3d(0,0,0);
 }
