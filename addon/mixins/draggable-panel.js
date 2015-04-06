@@ -53,9 +53,14 @@ export default Ember.Mixin.create({
     var containerXOffset = this.get('containerXOffset');
     var offset           = containerXOffset + event.deltaX;
 
-    Ember.$.Velocity(this.get('$container'), {
-      translateX: offset
-    }, { duration: 0 });
+    var xSwipe = Math.abs(event.deltaX) >= Math.abs(event.deltaY);
+
+      // animate only if pan is a horizontal swipe
+    if (xSwipe) {
+      Ember.$.Velocity(this.get('$container'), {
+        translateX: offset
+      }, { duration: 0 });
+    }
   },
 
   panend: function(event) {
@@ -63,22 +68,25 @@ export default Ember.Mixin.create({
   },
 
   panChooseAnimation: function(event) {
-    var delta     = event.deltaX;
+    var deltaX = event.deltaX;
+    var deltaY = event.deltaY;
+    var xSwipe = Math.abs(deltaX) >= Math.abs(deltaY);
+
     var threshold = this.get('threshold');
     var prevPane  = this.get('prevPane');
     var nextPane  = this.get('nextPane');
 
-    if (prevPane && delta > threshold) {
+    if (prevPane && (deltaX > threshold) && xSwipe) {
       return this.animateToPane(prevPane);
 
-    } else if (delta > 0) {
+    } else if ((deltaX > 0) && xSwipe) {
       return this.animateToCurrentPane();
 
-    } else if (nextPane && Math.abs(delta) > threshold) {
+    } else if ((nextPane && Math.abs(deltaX) > threshold) && xSwipe) {
       return this.animateToPane(nextPane);
 
     } else {
       return this.animateToCurrentPane();
     }
-  }
+  },
 });
