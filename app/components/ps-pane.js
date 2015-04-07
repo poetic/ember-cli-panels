@@ -17,6 +17,15 @@ export default Ember.Component.extend(ChildComponent, {
     this.$().on('scrollstop', this.scrollstop.bind(this));
   }),
 
+  setupHeight: Ember.on('didInsertElement', function(){
+      // cannot target panes using 'this.$()' because they have different
+      // offsets when initially inserted into the DOM
+    var offset = $('.ps-pane').offset().top
+    var height = $(window).height()
+    var paneHeight = height - offset
+    $('.ps-pane').height(paneHeight);
+  }),
+
   removeScrollHandler: Ember.on('willDestroyElement', function() {
     this.$().off('scrollstart', this.scrollstart.bind(this));
     this.$().off('scrollstop', this.scrollstop.bind(this));
