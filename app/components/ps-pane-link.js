@@ -31,6 +31,7 @@ export default Ember.Component.extend(ChildComponent, {
   click: function(e) {
     e.preventDefault();
 
+    this.get('menu').sendAction('action', this.get('prefixedTo'));
     this.get('menu').switchPane(this.get('prefixedTo'));
   },
 
